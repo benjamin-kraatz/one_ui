@@ -297,14 +297,36 @@ class _OneUIViewState extends State<OneUIView> {
       ),
     );
 
-    return SafeArea(
-      child: NotificationListener<ScrollNotification>(
-        onNotification: _onNotification,
-        child: NestedScrollView(
-          key: _nestedScrollViewStateKey,
-          physics: OneUIScrollPhysics(expandedHeight),
-          headerSliverBuilder: _appBar,
-          body: _body,
+    return Theme(
+      data: ThemeData(
+        tooltipTheme: TooltipThemeData(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black38,
+                spreadRadius: 1.05,
+                blurRadius: 1.3,
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+          textStyle: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: _onNotification,
+          child: NestedScrollView(
+            key: _nestedScrollViewStateKey,
+            physics: OneUIScrollPhysics(expandedHeight),
+            headerSliverBuilder: _appBar,
+            body: _body,
+          ),
         ),
       ),
     );
