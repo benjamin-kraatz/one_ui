@@ -38,25 +38,28 @@ class OneUIContainedButton extends ElevatedButton {
       MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
     );
 
-    return ElevatedButton.styleFrom(
-      primary: colorScheme.primary,
-      onPrimary: colorScheme.onPrimary,
+    return TextButton.styleFrom(
+      primary: colorScheme.onPrimary,
       onSurface: colorScheme.onSurface,
+      backgroundColor: colorScheme.primary,
       shadowColor: theme.shadowColor,
-      elevation: 2,
+      elevation: 0,
       textStyle: theme.textTheme.button,
-      padding: scaledPadding,
+      padding: EdgeInsets.all(18),
       minimumSize: const Size(64, 36),
       maximumSize: Size.infinite,
       side: null,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(18))),
+        borderRadius: BorderRadius.all(
+          Radius.circular(18),
+        ),
+      ),
       enabledMouseCursor: SystemMouseCursors.click,
       disabledMouseCursor: SystemMouseCursors.forbidden,
       visualDensity: theme.visualDensity,
       tapTargetSize: theme.materialTapTargetSize,
       animationDuration: kThemeChangeDuration,
-      enableFeedback: true,
+      enableFeedback: false,
       alignment: Alignment.center,
       splashFactory: splashFactory,
     );

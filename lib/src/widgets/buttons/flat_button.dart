@@ -44,7 +44,7 @@ class OneUIFlatButton extends TextButton {
       shadowColor: theme.shadowColor,
       elevation: 0,
       textStyle: theme.textTheme.button,
-      padding: scaledPadding,
+      padding: EdgeInsets.all(18),
       minimumSize: const Size(64, 36),
       maximumSize: Size.infinite,
       side: null,
