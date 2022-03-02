@@ -12,6 +12,7 @@ class OneUIContainedButton extends ElevatedButton {
     bool autofocus = false,
     Clip clipbehavior = Clip.none,
     required Widget? child,
+    this.backgroundColor,
     this.splashFactory = OneUIInkRipple.splashFactory,
   }) : super(
           key: key,
@@ -24,6 +25,7 @@ class OneUIContainedButton extends ElevatedButton {
           child: child,
         );
 
+  final Color? backgroundColor;
   final InteractiveInkFeatureFactory? splashFactory;
 
   @override
@@ -41,7 +43,7 @@ class OneUIContainedButton extends ElevatedButton {
     return TextButton.styleFrom(
       primary: colorScheme.onPrimary,
       onSurface: colorScheme.onSurface,
-      backgroundColor: colorScheme.primary,
+      backgroundColor: backgroundColor ?? colorScheme.primary,
       shadowColor: theme.shadowColor,
       elevation: 0,
       textStyle: theme.textTheme.button,
