@@ -227,11 +227,31 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
   // Value Indicator Animation that appears on the Overlay.
   PaintValueIndicator? paintValueIndicator;
 
+  double _defaultTrackHeight = 4;
+  late AnimationController _trackHeightController;
+  late Animation<double> _trackHeightAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    _trackHeightController = AnimationController(
+      vsync: this,
+      duration: Duration(
+        milliseconds: 100,
+      ),
+    );
+    _trackHeightAnimation = Tween<double>(begin: 4, end: 16).animate(
+      _trackHeightController,
+    );
+    _trackHeightController.addListener(() {
+      setState(() {
+        _defaultTrackHeight = _trackHeightAnimation.value;
+      });
+    });
+
     overlayController = AnimationController(
-      duration: kRadialReactionDuration,
+      duration: Duration(seconds: 1),
       vsync: this,
     );
     valueIndicatorController = AnimationController(
@@ -271,6 +291,7 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
   @override
   void dispose() {
     interactionTimer?.cancel();
+    _trackHeightController.dispose();
     overlayController.dispose();
     valueIndicatorController.dispose();
     enableController.dispose();
@@ -291,14 +312,22 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
     }
   }
 
+  bool dragging = false;
   void _handleDragStart(double value) {
-    assert(widget.onChangeStart != null);
-    widget.onChangeStart!(_lerp(value));
+    setState(() {
+      dragging = true;
+    });
+
+    _trackHeightController.forward();
+    widget.onChangeStart?.call(_lerp(value));
   }
 
   void _handleDragEnd(double value) {
-    assert(widget.onChangeEnd != null);
-    widget.onChangeEnd!(_lerp(value));
+    setState(() {
+      dragging = false;
+    });
+    _trackHeightController.reverse();
+    widget.onChangeEnd?.call(_lerp(value));
   }
 
   void _actionHandler(_AdjustSliderIntent intent) {
@@ -386,16 +415,17 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
     // the default shapes and text styles are aligned to the Material
     // Guidelines.
 
-    const double _defaultTrackHeight = 4;
     const SliderTrackShape _defaultTrackShape = RoundedRectSliderTrackShape();
     const SliderTickMarkShape _defaultTickMarkShape =
         RoundSliderTickMarkShape();
-    const SliderComponentShape _defaultOverlayShape = RoundSliderOverlayShape(
-      overlayRadius: 20.0,
+    SliderComponentShape _defaultOverlayShape = RoundSliderOverlayShape(
+      overlayRadius: 20,
     );
     const SliderComponentShape _defaultThumbShape = RoundSliderThumbShape(
       elevation: .0,
       pressedElevation: .0,
+      enabledThumbRadius: 0.10,
+      disabledThumbRadius: 0.10,
     );
     const SliderComponentShape _defaultValueIndicatorShape =
         RectangularSliderValueIndicatorShape();
@@ -467,7 +497,7 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
       valueIndicatorColor: valueIndicatorColor,
       trackShape: sliderTheme.trackShape ?? _defaultTrackShape,
       tickMarkShape: sliderTheme.tickMarkShape ?? _defaultTickMarkShape,
-      thumbShape: sliderTheme.thumbShape ?? _defaultThumbShape,
+      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 3.0),
       overlayShape: sliderTheme.overlayShape ?? _defaultOverlayShape,
       valueIndicatorShape: valueIndicatorShape,
       showValueIndicator:
@@ -509,7 +539,7 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
           child: _SliderRenderObjectWidget(
             key: _renderObjectKey,
             value: _unlerp(widget.value),
-            thumbRadius: widget.thumbRadius,
+            thumbRadius: dragging ? 32 : widget.thumbRadius,
             onClickThumbRadius: widget.onClickThumbRadius,
             divisions: widget.divisions,
             label: widget.label,
@@ -519,9 +549,8 @@ class _SliderState extends State<OneUISlider> with TickerProviderStateMixin {
             onChanged: (widget.onChanged != null) && (widget.max > widget.min)
                 ? _handleChanged
                 : null,
-            onChangeStart:
-                widget.onChangeStart != null ? _handleDragStart : null,
-            onChangeEnd: widget.onChangeEnd != null ? _handleDragEnd : null,
+            onChangeStart: _handleDragStart,
+            onChangeEnd: _handleDragEnd,
             state: this,
             semanticFormatterCallback: widget.semanticFormatterCallback,
             hasFocus: _focused,
@@ -661,7 +690,6 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
         _label = label,
         _value = value,
         _thumbRadius = thumbRadius,
-        _onClickThumbRadius = onClickThumbRadius,
         _divisions = divisions,
         _sliderTheme = sliderTheme,
         _textScaleFactor = textScaleFactor,
@@ -786,12 +814,7 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     markNeedsPaint();
   }
 
-  double get onClickThumbRadius => _onClickThumbRadius;
-  double _onClickThumbRadius;
-  set onClickThumbRadius(double newValue) {
-    _onClickThumbRadius = newValue;
-    markNeedsPaint();
-  }
+  double get onClickThumbRadius => 0.0;
 
   TargetPlatform _platform;
   TargetPlatform get platform => _platform;
@@ -913,12 +936,12 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
 
   void _updateForFocusOrHover(bool hasFocusOrIsHovering) {
     if (hasFocusOrIsHovering) {
-      _state.overlayController.forward();
+      //_state.overlayController.forward();
       if (showValueIndicator) {
         _state.valueIndicatorController.forward();
       }
     } else {
-      _state.overlayController.reverse();
+      //_state.overlayController.reverse();
       if (showValueIndicator) {
         _state.valueIndicatorController.reverse();
       }
@@ -1035,7 +1058,7 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
       _state.clickController.forward();
       _currentDragValue = _getValueFromGlobalPosition(globalPosition);
       onChanged!(_discretize(_currentDragValue));
-      _state.overlayController.forward();
+      //_state.overlayController.forward();
       if (showValueIndicator) {
         _state.valueIndicatorController.forward();
         _state.interactionTimer?.cancel();

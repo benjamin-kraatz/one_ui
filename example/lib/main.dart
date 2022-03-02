@@ -250,6 +250,10 @@ class _SliderPageState extends State<SliderPage> {
                       _value1 = value;
                     });
                   },
+                  useOneUIColor: true,
+                  onChangeStart: (value) {
+                    print('sopbojsdopvjsdovpjsdpv ${value}');
+                  },
                 ),
                 const Text('Continuous'),
                 const SizedBox(height: 50),
@@ -260,6 +264,9 @@ class _SliderPageState extends State<SliderPage> {
                     setState(() {
                       _value2 = value;
                     });
+                  },
+                  onChangeStart: (value) {
+                    print('sopbojsdopvjsdovpjsdpv ${value}');
                   },
                 ),
                 const Text('Discrete'),
